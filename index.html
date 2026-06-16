@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pixel Pokémon Hidden Object - Game Boy Edition</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for Retro style -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=DungGeunMo&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'DungGeunMo', 'Press Start 2P', monospace;
+            background-color: #1a1a1a;
+            color: #f3f4f6;
+            image-rendering: pixelated;
+        }
+        .gb-screen-font {
+            font-family: 'Press Start 2P', monospace;
+        }
+        /* Game Boy Green Screen Theme */
+        .gb-screen {
+            background-color: #8bac0f;
+            box-shadow: inset 3px 3px 10px rgba(0,0,0,0.5);
+            border: 4px solid #306230;
+        }
+        .gb-dark { color: #0f380f; }
+        .gb-medium-dark { color: #306230; }
+        .gb-medium-light { color: #8bac0f; }
+        .gb-light { color: #9bbc0f; }
+        
+        .gb-bg-dark { background-color: #0f380f; }
+        .gb-bg-medium-dark { background-color: #306230; }
+        .gb-bg-light { background-color: #9bbc0f; }
+
+        /* Game Boy Console Body Colors */
+        .gb-body {
+            background-color: #c2c2d6;
+            box-shadow: inset -5px -5px 0px #9494b8, inset 5px 5px 0px #ffffff, 5px 10px 20px rgba(0,0,0,0.6);
+        }
+        
+        .d-pad-btn {
+            background: #2e2e2e;
+            box-shadow: inset 1px 1px 0px #555, 2px 2px 3px rgba(0,0,0,0.4);
+        }
+        
+        .action-btn {
+            background: #a91c50;
+            box-shadow: inset 2px 2px 0px #ff5c93, 2px 4px 5px rgba(0,0,0,0.5);
+            transform: rotate(-15deg);
+        }
+        .action-btn:active {
+            box-shadow: inset -1px -1px 0px #ff5c93, 1px 2px 2px rgba(0,0,0,0.5);
+            transform: rotate(-15deg) translate(1px, 1px);
+        }
+
+        /* Pixel art patterns */
+        .pixel-shrub {
+            background-image: radial-gradient(#306230 20%, transparent 20%),
+                              radial-gradient(#306230 20%, transparent 20%);
+            background-size: 16px 16px;
+            background-position: 0 0, 8px 8px;
+        }
+
+        /* Custom Scrollbar for GB style */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #8bac0f;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #0f380f;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-2 md:p-6 overflow-x-hidden select-none">
+
+    <!-- MAIN CONSOLE CONTAINER -->
+    <div class="gb-body w-full max-w-md rounded-3xl p-6 flex flex-col items-center relative border-4 border-gray-400">
+        
+        <!-- Game Boy Header Brand -->
+        <div class="w-full flex items-center justify-between px-4 mb-4">
+            <span class="text-xs tracking-widest text-gray-700 font-bold" style="font-family:'Press Start 2P'">GAME BOY</span>
+            <div class="flex space-x-1">
+                <span class="w-2 h-2 rounded-full bg-red-600 animate-pulse" id="power-led"></span>
+                <span class="text-[8px] text-gray-600 font-bold">POWER</span>
+            </div>
+        </div>
+
+        <!-- SCREEN FRAME -->
+        <div class="w-full bg-[#757b6a] rounded-lg p-4 pb-6 border-b-8 border-gray-400 flex flex-col items-center relative shadow-inner">
+            <div class="w-full flex justify-between text-[8px] text-gray-300 px-2 mb-1 gb-screen-font">
+                <span>DOT MATRIX WITH STEREO SOUND</span>
+            </div>
+            
+            <!-- THE LCD SCREEN -->
+            <div id="screen" class="gb-screen w-full aspect-[4/3.2] relative overflow-hidden flex flex-col justify-between p-2">
+                
+                <!-- START / SPLASH SCREEN -->
+                <div id="splash-screen" class="absolute inset-0 bg-[#8bac0f] z-20 flex flex-col items-center justify-between p-4">
+                    <div class="text-center mt-4">
+                        <h1 class="text-xl md:text-2xl font-bold tracking-tight gb-dark mb-1 animate-bounce" style="font-family:'Press Start 2P'">POCKET</h1>
+                        <h2 class="text-lg md:text-xl font-bold tracking-widest gb-dark" style="font-family:'Press Start 2P'">FINDER</h2>
+                        <p class="text-[9px] gb-medium-dark mt-2">태초마을의 숨은 그림 찾기</p>
+                    </div>
+
+                    <!-- Custom Pixel Art Logo in Screen -->
+                    <div class="w-16 h-16 relative flex items-center justify-center">
+                        <!-- Simple Pure SVG Pixel Pokeball -->
+                        <svg viewBox="0 0 16 16" class="w-14 h-14" style="image-rendering: pixelated;">
+                            <rect x="5" y="1" width="6" height="1" fill="#0f380f" />
+                            <rect x="3" y="2" width="2" height="1" fill="#0f380f" />
+                            <rect x="11" y="2" width="2" height="1" fill="#0f380f" />
+                            <rect x="2" y="3" width="1" height="2" fill="#0f380f" />
+                            <rect x="13" y="3" width="1" height="2" fill="#0f380f" />
+                            <rect x="1" y="5" width="1" height="6" fill="#0f380f" />
+                            <rect x="14" y="5" width="1" height="6" fill="#0f380f" />
+                            <rect x="2" y="11" width="1" height="2" fill="#0f380f" />
+                            <rect x="13" y="11" width="1" height="2" fill="#0f380f" />
+                            <rect x="3" y="13" width="2" height="1" fill="#0f380f" />
+                            <rect x="11" y="13" width="2" height="1" fill="#0f380f" />
+                            <rect x="5" y="14" width="6" height="1" fill="#0f380f" />
+                            <!-- Pokeball upper half -->
+                            <rect x="3" y="3" width="10" height="2" fill="#306230" />
+                            <rect x="2" y="5" width="12" height="2" fill="#306230" />
+                            <!-- Center Line -->
+                            <rect x="2" y="7" width="12" height="2" fill="#0f380f" />
+                            <!-- Center Button -->
+                            <rect x="6" y="6" width="4" height="4" fill="#0f380f" />
+                            <rect x="7" y="7" width="2" height="2" fill="#8bac0f" />
+                        </svg>
+                    </div>
+
+                    <button onclick="startGame()" class="w-full bg-[#0f380f] text-[#8bac0f] text-xs py-2 px-4 rounded border-2 border-[#306230] animate-pulse font-bold hover:bg-[#306230] hover:text-[#0f380f] transition-all">
+                        START GAME
+                    </button>
+                    <p class="text-[7px] gb-medium-dark">©1996, 2026 PIXEL MON</p>
+                </div>
+
+                <!-- GAME OVER SCREEN -->
+                <div id="gameover-screen" class="absolute inset-0 bg-[#0f380f] z-20 hidden flex flex-col items-center justify-center p-4 text-[#8bac0f]">
+                    <h2 class="text-xl font-bold mb-2 animate-bounce" style="font-family:'Press Start 2P'">GAME OVER</h2>
+                    <p class="text-xs mb-1">포켓몬들을 놓쳤습니다...</p>
+                    <p class="text-[9px] text-[#306230] mb-4 text-center">스테이지: <span id="go-stage">1</span> | 찾은 수: <span id="go-found">0</span>/5</p>
+                    <button onclick="restartAll()" class="bg-[#8bac0f] text-[#0f380f] text-[10px] py-2 px-4 rounded border-2 border-white font-bold transition-all active:scale-95">
+                        다시 도전하기
+                    </button>
+                </div>
+
+                <!-- VICTORY SCREEN -->
+                <div id="victory-screen" class="absolute inset-0 bg-[#8bac0f] z-20 hidden flex flex-col items-center justify-center p-4 text-[#0f380f]">
+                    <h2 class="text-xl font-bold mb-2 text-center animate-bounce" style="font-family:'Press Start 2P'">CHAMPION!</h2>
+                    <p class="text-[11px] mb-2 text-center font-bold">당신은 최고의 포켓몬 포수!</p>
+                    <p class="text-[9px] mb-4 text-center">모든 스테이지를 통과하였습니다.</p>
+                    <button onclick="restartAll()" class="bg-[#0f380f] text-[#8bac0f] text-[10px] py-2 px-4 rounded border-2 border-[#306230] font-bold transition-all">
+                        처음부터 게임하기
+                    </button>
+                </div>
+
+                <!-- STAT BAR / TOP -->
+                <div class="flex justify-between items-center border-b border-[#306230] pb-1 z-10">
+                    <!-- Stage Info -->
+                    <div class="flex flex-col">
+                        <span class="text-[7px] uppercase gb-medium-dark font-bold">AREA</span>
+                        <span class="text-[10px] font-bold gb-dark leading-tight" id="stage-num">01/03</span>
+                    </div>
+                    <!-- Life Hearts -->
+                    <div class="flex flex-col items-end">
+                        <span class="text-[7px] uppercase gb-medium-dark font-bold">LIFE</span>
+                        <div class="flex space-x-0.5 mt-0.5" id="hearts-container">
+                            <!-- SVG hearts will be rendered here dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GAMEPLAY CANVAS AREA -->
+                <div class="relative flex-grow my-1 rounded border border-[#306230] overflow-hidden bg-[#8bac0f]" id="game-canvas">
+                    <!-- Map/Background layers will be loaded here -->
+                    <div id="game-bg" class="absolute inset-0 opacity-80 pointer-events-none"></div>
+                    <div id="decorations" class="absolute inset-0 pointer-events-none"></div>
+                    <!-- Hidden objects layer -->
+                    <div id="objects-layer" class="absolute inset-0"></div>
+                </div>
+
+                <!-- BOTTOM PANEL / INSTRUCTIONS & SOUND -->
+                <div class="flex justify-between items-center border-t border-[#306230] pt-1 z-10 text-[9px] gb-dark">
+                    <div class="flex items-center space-x-1">
+                        <!-- Music Toggle Button -->
+                        <button onclick="toggleMusic()" class="bg-[#0f380f] text-[#8bac0f] rounded px-1.5 py-0.5 text-[8px] border border-[#306230] font-bold flex items-center gap-1">
+                            <span id="music-icon">🎵</span> <span id="music-status">ON</span>
+                        </button>
+                    </div>
+                    <div class="text-right">
+                        <span>찾은 수: </span>
+                        <span id="found-counter" class="font-bold">0</span>/5
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- CONSOLE CONTROLS SECTION -->
+        <div class="w-full mt-6 grid grid-cols-3 gap-2 items-center">
+            
+            <!-- LEFT: D-PAD (Aesthetics Only/Help Hint Trigger) -->
+            <div class="flex items-center justify-center relative h-28">
+                <div class="absolute w-24 h-24 flex items-center justify-center">
+                    <!-- D-Pad Body Cross -->
+                    <div class="w-8 h-24 bg-zinc-800 rounded-md shadow-lg absolute"></div>
+                    <div class="h-8 w-24 bg-zinc-800 rounded-md shadow-lg absolute"></div>
+                    
+                    <!-- Buttons inside D-Pad -->
+                    <button onclick="triggerHint()" class="absolute top-1 w-6 h-6 d-pad-btn rounded-t text-gray-500 flex items-center justify-center text-[10px]" title="힌트">▲</button>
+                    <button onclick="triggerHint()" class="absolute bottom-1 w-6 h-6 d-pad-btn rounded-b text-gray-500 flex items-center justify-center text-[10px]" title="힌트">▼</button>
+                    <button onclick="triggerHint()" class="absolute left-1 w-6 h-6 d-pad-btn rounded-l text-gray-500 flex items-center justify-center text-[10px]" title="힌트">◀</button>
+                    <button onclick="triggerHint()" class="absolute right-1 w-6 h-6 d-pad-btn rounded-r text-gray-500 flex items-center justify-center text-[10px]" title="힌트">▶</button>
+                    <!-- Center Circle -->
+                    <div class="absolute w-8 h-8 bg-zinc-800 rounded-full z-10 flex items-center justify-center">
+                        <div class="w-4 h-4 bg-zinc-900 rounded-full"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MIDDLE: LOGO & SOUND GRILLES -->
+            <div class="flex flex-col items-center justify-center h-full">
+                <!-- Retro Emblem -->
+                <div class="border-2 border-gray-400 px-2 py-0.5 rounded bg-gray-300 text-center mb-4">
+                    <span class="text-[7px] text-gray-600 block leading-none font-bold">PIXEL</span>
+                    <span class="text-[8px] text-gray-700 block tracking-widest font-extrabold" style="font-family:'Press Start 2P'">POCKET</span>
+                </div>
+                <!-- Speaker Grilles -->
+                <div class="flex space-x-1 rotate-[-28deg] mt-2">
+                    <div class="w-1.5 h-10 bg-zinc-700 rounded-full opacity-60"></div>
+                    <div class="w-1.5 h-10 bg-zinc-700 rounded-full opacity-60"></div>
+                    <div class="w-1.5 h-10 bg-zinc-700 rounded-full opacity-60"></div>
+                    <div class="w-1.5 h-10 bg-zinc-700 rounded-full opacity-60"></div>
+                </div>
+            </div>
+
+            <!-- RIGHT: A/B ACTION BUTTONS -->
+            <div class="flex items-center justify-center space-x-3 h-28 relative">
+                <!-- B Button -->
+                <div class="flex flex-col items-center justify-center">
+                    <button onclick="playSFX('button')" class="w-10 h-10 rounded-full action-btn flex items-center justify-center text-[10px] text-white font-bold gb-screen-font">B</button>
+                    <span class="text-[8px] text-gray-700 font-bold mt-2">CANCEL</span>
+                </div>
+                <!-- A Button -->
+                <div class="flex flex-col items-center justify-center">
+                    <button onclick="triggerHint()" class="w-10 h-10 rounded-full action-btn flex items-center justify-center text-[10px] text-white font-bold gb-screen-font">A</button>
+                    <span class="text-[8px] text-gray-700 font-bold mt-2">HINT</span>
+                </div>
+            </div>
+            
+        </div>
+
+        <!-- SELECT & START BUTTONS -->
+        <div class="w-3/4 flex justify-around mt-4 mb-2">
+            <div class="flex flex-col items-center">
+                <button onclick="toggleMusic()" class="w-10 h-3 bg-zinc-600 rounded-full rotate-[-12deg] shadow-md border-b-2 border-zinc-700 active:bg-zinc-700"></button>
+                <span class="text-[8px] text-gray-600 font-bold mt-1 tracking-wider uppercase">SOUND</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <button onclick="restartAll()" class="w-10 h-3 bg-zinc-600 rounded-full rotate-[-12deg] shadow-md border-b-2 border-zinc-700 active:bg-zinc-700"></button>
+                <span class="text-[8px] text-gray-600 font-bold mt-1 tracking-wider uppercase">RESET</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- HOW TO PLAY / HINT CARD -->
+    <div class="mt-6 w-full max-w-md bg-zinc-800 p-4 rounded-xl border-4 border-zinc-700 shadow-lg text-sm text-center">
+        <h3 class="font-bold text-yellow-500 mb-1 flex items-center justify-center gap-1">
+            🎮 게임 플레이 규칙
+        </h3>
+        <p class="text-xs text-gray-300 leading-relaxed mb-2">
+            태초마을 풀숲, 나무, 집 사이에 교묘하게 숨겨진 <span class="text-green-400 font-bold">5마리의 포켓몬</span>을 찾으세요!
+            <br>화면 내 미심쩍은 곳을 조심스럽게 터치하세요.
+        </p>
+        <div class="bg-zinc-900 p-2 rounded text-[11px] text-left space-y-1 text-gray-400">
+            <p>🚫 <strong class="text-red-400">주의:</strong> 틀린 위치를 클릭할 때마다 생명이 1씩 줄어듭니다.</p>
+            <p>💖 <strong class="text-rose-400">생명 연장:</strong> 목숨(<span class="text-rose-500">♥</span>5개)은 다음 판으로 넘어가도 <strong>충전되지 않고 누적</strong>됩니다!</p>
+            <p>💡 <strong class="text-blue-400">D-Pad / A 버튼:</strong> 도저히 찾기 힘들 땐 힌트 버튼을 클릭해 보세요.</p>
+        </div>
+    </div>
+
+    <!-- AUDIO SYNTHESIS & GAME LOGIC SCRIPT -->
+    <script>
+        // --- 1990s POKEMON BGM & SFX ENGINE (Web Audio API) ---
+        let audioCtx = null;
+        let bgmInterval = null;
+        let isMusicPlaying = false;
+        let bgmNoteIndex = 0;
+
+        // Custom 8-bit Synthesizer Music: Red/Blue Opening Theme Main Motif
+        // Simplified retro sequencer with 8-bit pulse wave sound
+        const openingMelody = [
+            // Note, duration (in ticks), octave
+            {note: 'G', dur: 2, oct: 3}, {note: 'C', dur: 2, oct: 4}, {note: 'D', dur: 2, oct: 4}, {note: 'E', dur: 4, oct: 4},
+            {note: 'G', dur: 2, oct: 4}, {note: 'E', dur: 2, oct: 4}, {note: 'C', dur: 4, oct: 4},
+            {note: 'D', dur: 2, oct: 4}, {note: 'E', dur: 2, oct: 4}, {note: 'F', dur: 4, oct: 4},
+            {note: 'D', dur: 2, oct: 4}, {note: 'B', dur: 2, oct: 3}, {note: 'G', dur: 4, oct: 3},
+            
+            {note: 'G', dur: 2, oct: 3}, {note: 'C', dur: 2, oct: 4}, {note: 'D', dur: 2, oct: 4}, {note: 'E', dur: 4, oct: 4},
+            {note: 'G', dur: 2, oct: 4}, {note: 'E', dur: 2, oct: 4}, {note: 'C', dur: 4, oct: 4},
+            {note: 'D', dur: 2, oct: 4}, {note: 'B', dur: 2, oct: 3}, {note: 'C', dur: 8, oct: 4},
+            
+            {note: 'E', dur: 2, oct: 4}, {note: 'F', dur: 2, oct: 4}, {note: 'G', dur: 4, oct: 4},
+            {note: 'A', dur: 2, oct: 4}, {note: 'F', dur: 2, oct: 4}, {note: 'D', dur: 4, oct: 4},
+            {note: 'D', dur: 2, oct: 4}, {note: 'E', dur: 2, oct: 4}, {note: 'F', dur: 4, oct: 4},
+            {note: 'G', dur: 2, oct: 4}, {note: 'E', dur: 2, oct: 4}, {note: 'C', dur: 4, oct: 4},
+            
+            {note: 'A', dur: 4, oct: 4}, {note: 'F', dur: 4, oct: 4}, {note: 'D', dur: 4, oct: 4},
+            {note: 'B', dur: 4, oct: 4}, {note: 'G', dur: 4, oct: 4}, {note: 'E', dur: 4, oct: 4},
+            {note: 'C', dur: 12, oct: 5}
+        ];
+
+        const noteFreqs = {
+            'C': 261.63, 'C#': 277.18, 'D': 293.66, 'D#': 311.13, 'E': 329.63, 'F': 349.23, 
+            'F#': 369.99, 'G': 392.00, 'G#': 415.30, 'A': 440.00, 'A#': 466.16, 'B': 493.88
+        };
+
+        function getFrequency(note, octave) {
+            // Safe fallback value if note is invalid or undefined
+            const baseFreq = noteFreqs[note] || 261.63; 
+            const targetOctave = (typeof octave === 'number' && isFinite(octave)) ? octave : 4;
+            return baseFreq * Math.pow(2, targetOctave - 4);
+        }
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // Web Audio Retro Synthesizer
+        function play8BitNote(frequency, duration, type = 'square', volume = 0.05) {
+            initAudio();
+            if (!audioCtx) return;
+
+            // Strict parameter checking to prevent "The provided float value is non-finite."
+            let safeFreq = parseFloat(frequency);
+            if (isNaN(safeFreq) || !isFinite(safeFreq) || safeFreq <= 0) {
+                safeFreq = 440.00; // Default fallback to A4
+            }
+
+            let safeDuration = parseFloat(duration);
+            if (isNaN(safeDuration) || !isFinite(safeDuration) || safeDuration <= 0) {
+                safeDuration = 0.1; // Default short length
+            }
+
+            let safeVolume = parseFloat(volume);
+            if (isNaN(safeVolume) || !isFinite(safeVolume) || safeVolume < 0) {
+                safeVolume = 0.05;
+            }
+            
+            try {
+                const osc = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                osc.type = type; // square or triangle
+                osc.frequency.setValueAtTime(safeFreq, audioCtx.currentTime);
+                
+                gainNode.gain.setValueAtTime(safeVolume, audioCtx.currentTime);
+                // Smoothly decay to avoid sound click pop issues
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + safeDuration);
+                
+                osc.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + safeDuration);
+            } catch (e) {
+                console.warn("Audio playback issue avoided safely: ", e);
+            }
+        }
+
+        function playSFX(type) {
+            initAudio();
+            if (!audioCtx) return;
+
+            if (type === 'success') {
+                // Happy 8-bit arpeggio
+                const base = 523.25; // C5
+                play8BitNote(base, 0.1, 'square', 0.1);
+                setTimeout(() => play8BitNote(base * 1.25, 0.1, 'square', 0.1), 100); // E5
+                setTimeout(() => play8BitNote(base * 1.5, 0.15, 'square', 0.1), 200); // G5
+                setTimeout(() => play8BitNote(base * 2.0, 0.3, 'square', 0.1), 300); // C6
+            } else if (type === 'fail') {
+                // Melancholic slide down
+                play8BitNote(220, 0.2, 'sawtooth', 0.15);
+                setTimeout(() => play8BitNote(147, 0.4, 'sawtooth', 0.15), 180);
+            } else if (type === 'button') {
+                // Short click sound
+                play8BitNote(800, 0.05, 'square', 0.05);
+            } else if (type === 'hint') {
+                // Magical ringing sound
+                play8BitNote(880, 0.1, 'triangle', 0.1);
+                setTimeout(() => play8BitNote(1109, 0.1, 'triangle', 0.1), 80);
+                setTimeout(() => play8BitNote(1318, 0.1, 'triangle', 0.1), 160);
+                setTimeout(() => play8BitNote(1760, 0.2, 'triangle', 0.1), 240);
+            } else if (type === 'gameover') {
+                // Desolate retro sound
+                const notes = [293, 277, 261, 246];
+                notes.forEach((freq, idx) => {
+                    setTimeout(() => play8BitNote(freq, 0.25, 'triangle', 0.1), idx * 250);
+                });
+            } else if (type === 'stage-clear') {
+                // Level Up celebration fanfare
+                const fanfare = [523, 659, 783, 1046, 783, 1046];
+                const delays = [0, 120, 240, 360, 480, 600];
+                fanfare.forEach((freq, idx) => {
+                    setTimeout(() => play8BitNote(freq, 0.15, 'square', 0.1), delays[idx]);
+                });
+            }
+        }
+
+        function playBGM() {
+            if (!isMusicPlaying) return;
+            initAudio();
+            
+            const speed = 150; // Tempo in milliseconds per tick
+            
+            const step = () => {
+                if (!isMusicPlaying) return;
+                
+                const item = openingMelody[bgmNoteIndex];
+                if (item) {
+                    const freq = getFrequency(item.note, item.octave);
+                    const duration = (item.dur * speed) / 1000;
+                    
+                    // Classic GB sound uses dual pulse channels. Here we trigger a dominant square wave
+                    play8BitNote(freq, duration, 'square', 0.03);
+                    
+                    // Subtle delay harmony or bass simulation
+                    if (bgmNoteIndex % 2 === 0) {
+                        play8BitNote(freq / 2, duration * 0.8, 'triangle', 0.04);
+                    }
+                }
+                
+                bgmNoteIndex = (bgmNoteIndex + 1) % openingMelody.length;
+                bgmInterval = setTimeout(step, (item ? item.dur : 2) * speed);
+            };
+            
+            step();
+        }
+
+        function stopBGM() {
+            if (bgmInterval) {
+                clearTimeout(bgmInterval);
+                bgmInterval = null;
+            }
+        }
+
+        function toggleMusic() {
+            isMusicPlaying = !isMusicPlaying;
+            const btnText = document.getElementById('music-status');
+            const btnIcon = document.getElementById('music-icon');
+            
+            if (isMusicPlaying) {
+                btnText.innerText = "ON";
+                btnIcon.innerText = "🎵";
+                playSFX('button');
+                playBGM();
+            } else {
+                btnText.innerText = "OFF";
+                btnIcon.innerText = "🔇";
+                stopBGM();
+            }
+        }
+
+
+        // --- GAME STATE & GRAPHICS LOGIC ---
+        
+        let currentStage = 1;
+        const totalStages = 3;
+        let totalLives = 5; // Global persistence
+        let foundCount = 0;
+        let objects = [];
+        let isStageCleared = false;
+        let activeHint = null;
+
+        // Custom SVGs for Classic Pixel Pokémon
+        const pokemonSVGs = {
+            pikachu: `
+                <svg viewBox="0 0 16 16" class="w-full h-full opacity-90">
+                    <!-- Pikachu Body Yellow -->
+                    <rect x="4" y="5" width="8" height="9" fill="#0f380f" />
+                    <rect x="5" y="4" width="6" height="10" fill="#306230" />
+                    <!-- Ears -->
+                    <rect x="3" y="1" width="2" height="4" fill="#0f380f" />
+                    <rect x="11" y="1" width="2" height="4" fill="#0f380f" />
+                    <!-- Cheek dots -->
+                    <rect x="5" y="8" width="1" height="1" fill="#8bac0f" />
+                    <rect x="10" y="8" width="1" height="1" fill="#8bac0f" />
+                    <!-- Eyes & Mouth in Retro Monochrome -->
+                    <rect x="6" y="6" width="1" height="1" fill="#0f380f" />
+                    <rect x="9" y="6" width="1" height="1" fill="#0f380f" />
+                    <rect x="7" y="8" width="2" height="1" fill="#0f380f" />
+                    <!-- Tail -->
+                    <rect x="12" y="5" width="2" height="4" fill="#306230" />
+                </svg>
+            `,
+            bulbasaur: `
+                <svg viewBox="0 0 16 16" class="w-full h-full opacity-90">
+                    <!-- Bulbasaur Body Greenish Medium -->
+                    <rect x="3" y="6" width="10" height="8" fill="#306230" />
+                    <rect x="4" y="5" width="8" height="2" fill="#306230" />
+                    <!-- Bulb on Back -->
+                    <rect x="5" y="2" width="6" height="3" fill="#0f380f" />
+                    <rect x="6" y="1" width="4" height="1" fill="#0f380f" />
+                    <!-- Eyes -->
+                    <rect x="5" y="7" width="1" height="2" fill="#0f380f" />
+                    <rect x="10" y="7" width="1" height="2" fill="#0f380f" />
+                    <!-- Legs -->
+                    <rect x="4" y="13" width="2" height="2" fill="#0f380f" />
+                    <rect x="10" y="13" width="2" height="2" fill="#0f380f" />
+                </svg>
+            `,
+            charmander: `
+                <svg viewBox="0 0 16 16" class="w-full h-full opacity-90">
+                    <!-- Charmander Body -->
+                    <rect x="5" y="4" width="6" height="10" fill="#306230" />
+                    <rect x="4" y="6" width="8" height="6" fill="#306230" />
+                    <!-- Tail -->
+                    <rect x="11" y="9" width="3" height="3" fill="#306230" />
+                    <!-- Tail Flame (light pixel) -->
+                    <rect x="13" y="7" width="2" height="2" fill="#8bac0f" />
+                    <!-- Snout -->
+                    <rect x="3" y="5" width="3" height="2" fill="#306230" />
+                    <!-- Eyes -->
+                    <rect x="7" y="5" width="1" height="2" fill="#0f380f" />
+                </svg>
+            `,
+            squirtle: `
+                <svg viewBox="0 0 16 16" class="w-full h-full opacity-90">
+                    <!-- Squirtle Round Body -->
+                    <rect x="4" y="4" width="8" height="9" fill="#306230" />
+                    <rect x="3" y="6" width="10" height="5" fill="#306230" />
+                    <!-- Shell (back-dark outline pattern) -->
+                    <rect x="11" y="6" width="2" height="5" fill="#0f380f" />
+                    <!-- Eyes -->
+                    <rect x="5" y="6" width="1" height="2" fill="#0f380f" />
+                    <rect x="9" y="6" width="1" height="2" fill="#0f380f" />
+                    <!-- Curly Tail -->
+                    <rect x="2" y="10" width="2" height="2" fill="#306230" />
+                </svg>
+            `,
+            jigglypuff: `
+                <svg viewBox="0 0 16 16" class="w-full h-full opacity-90">
+                    <!-- Jigglypuff Round Balloon Shape -->
+                    <circle cx="8" cy="8" r="6" fill="#306230" stroke="#0f380f" stroke-width="1.5" />
+                    <!-- Cat ears -->
+                    <polygon points="3,3 6,5 3,7" fill="#306230" stroke="#0f380f" stroke-width="1" />
+                    <polygon points="13,3 10,5 13,7" fill="#306230" stroke="#0f380f" stroke-width="1" />
+                    <!-- Giant Anime Eyes -->
+                    <circle cx="6" cy="8" r="2" fill="#8bac0f" />
+                    <circle cx="10" cy="8" r="2" fill="#8bac0f" />
+                    <circle cx="6" cy="8" r="0.7" fill="#0f380f" />
+                    <circle cx="10" cy="8" r="0.7" fill="#0f380f" />
+                </svg>
+            `,
+            diglett: `
+                <svg viewBox="0 0 16 16" class="w-full h-full opacity-90">
+                    <!-- Diglett head -->
+                    <rect x="4" y="3" width="8" height="11" fill="#306230" rx="3" />
+                    <!-- Ground rocks -->
+                    <rect x="2" y="12" width="12" height="3" fill="#0f380f" />
+                    <!-- Eyes -->
+                    <rect x="6" y="6" width="1" height="2" fill="#0f380f" />
+                    <rect x="9" y="6" width="1" height="2" fill="#0f380f" />
+                    <!-- Big Pink Nose -->
+                    <rect x="7" y="8" width="2" height="2" fill="#8bac0f" />
+                </svg>
+            `,
+            oddish: `
+                <svg viewBox="0 0 16 16" class="w-full h-full opacity-90">
+                    <!-- Round Root Body -->
+                    <circle cx="8" cy="10" r="4" fill="#306230" />
+                    <!-- Foliage/Leaves exploding upwards -->
+                    <path d="M 5 6 L 2 1 L 5 4 Z" fill="#0f380f" />
+                    <path d="M 8 6 L 8 0 L 9 4 Z" fill="#0f380f" />
+                    <path d="M 11 6 L 14 1 L 11 4 Z" fill="#0f380f" />
+                    <!-- Beady eyes -->
+                    <rect x="6" y="9" width="1" height="1" fill="#0f380f" />
+                    <rect x="9" y="9" width="1" height="1" fill="#0f380f" />
+                </svg>
+            `,
+            snorlax: `
+                <svg viewBox="0 0 16 16" class="w-full h-full opacity-90">
+                    <!-- Snorlax Chubby Body -->
+                    <rect x="3" y="4" width="10" height="11" fill="#306230" rx="2" />
+                    <!-- Belly Panel (lighter shade) -->
+                    <rect x="5" y="7" width="6" height="7" fill="#8bac0f" rx="1" />
+                    <!-- Pointy Ears -->
+                    <polygon points="3,4 5,4 4,1" fill="#306230" />
+                    <polygon points="11,4 13,4 12,1" fill="#306230" />
+                    <!-- Closed Squinty Eyes -->
+                    <line x1="5" y1="5.5" x2="6.5" y2="5.5" stroke="#0f380f" stroke-width="0.8" />
+                    <line x1="9.5" y1="5.5" x2="11" y2="5.5" stroke="#0f380f" stroke-width="0.8" />
+                </svg>
+            `,
+            mew: `
+                <svg viewBox="0 0 16 16" class="w-full h-full opacity-90">
+                    <!-- Mew Elegant Body -->
+                    <rect x="5" y="5" width="6" height="7" fill="#306230" rx="2" />
+                    <!-- Long Whip Tail -->
+                    <path d="M 5 11 Q 1 15 6 15 T 14 9" fill="none" stroke="#0f380f" stroke-width="1.2" />
+                    <!-- Big Back Feet -->
+                    <rect x="4" y="11" width="3" height="2" fill="#306230" />
+                    <rect x="9" y="11" width="3" height="2" fill="#306230" />
+                    <!-- Cute Face -->
+                    <rect x="8" y="7" width="1.5" height="1.5" fill="#8bac0f" />
+                </svg>
+            `,
+            gengar: `
+                <svg viewBox="0 0 16 16" class="w-full h-full opacity-90">
+                    <!-- Gengar Spiky Shadow Body -->
+                    <rect x="3" y="4" width="10" height="10" fill="#0f380f" rx="2" />
+                    <!-- Back Spikes -->
+                    <polygon points="2,5 4,6 2,8" fill="#0f380f" />
+                    <polygon points="14,5 12,6 14,8" fill="#0f380f" />
+                    <!-- Left & Right Ears -->
+                    <polygon points="3,4 3,1 6,4" fill="#0f380f" />
+                    <polygon points="13,4 13,1 10,4" fill="#0f380f" />
+                    <!-- Menacing Glowing Red Eyes -->
+                    <polygon points="5,6 7,7 5,7" fill="#8bac0f" />
+                    <polygon points="11,6 9,7 11,7" fill="#8bac0f" />
+                    <!-- Wide grin -->
+                    <path d="M 5 10 Q 8 13 11 10" fill="none" stroke="#8bac0f" stroke-width="1" />
+                </svg>
+            `
+        };
+
+        const pokemonPool = [
+            { id: 'pikachu', name: '피카츄', svg: pokemonSVGs.pikachu },
+            { id: 'bulbasaur', name: '이상해씨', svg: pokemonSVGs.bulbasaur },
+            { id: 'charmander', name: '파이리', svg: pokemonSVGs.charmander },
+            { id: 'squirtle', name: '꼬부기', svg: pokemonSVGs.squirtle },
+            { id: 'jigglypuff', name: '푸린', svg: pokemonSVGs.jigglypuff },
+            { id: 'diglett', name: '디그다', svg: pokemonSVGs.diglett },
+            { id: 'oddish', name: '뚜벅초', svg: pokemonSVGs.oddish },
+            { id: 'snorlax', name: '잠만보', svg: pokemonSVGs.snorlax },
+            { id: 'mew', name: '뮤', svg: pokemonSVGs.mew },
+            { id: 'gengar', name: '팬텀', svg: pokemonSVGs.gengar }
+        ];
+
+        // --- STAGE GRAPHICS SPECIFICATIONS ---
+        const stageThemes = {
+            1: {
+                name: "태초마을 풀숲 (Palette Grassland)",
+                shrubDensity: 40,
+                trees: [
+                    {x: 5, y: 10, w: 12, h: 16}, {x: 80, y: 15, w: 14, h: 18},
+                    {x: 15, y: 70, w: 12, h: 16}, {x: 88, y: 72, w: 15, h: 20}
+                ],
+                houses: [
+                    {x: 45, y: 20, w: 25, h: 22, name: "오박사 연구소"}
+                ]
+            },
+            2: {
+                name: "1번 도로 숲속길 (Route 1 Woodlands)",
+                shrubDensity: 55,
+                trees: [
+                    {x: 4, y: 5, w: 15, h: 20}, {x: 22, y: 8, w: 13, h: 18}, {x: 75, y: 10, w: 14, h: 19}, {x: 88, y: 12, w: 12, h: 16},
+                    {x: 5, y: 68, w: 14, h: 18}, {x: 85, y: 70, w: 15, h: 22}, {x: 45, y: 75, w: 13, h: 18}
+                ],
+                houses: []
+            },
+            3: {
+                name: "상록숲 오솔길 (Viridian Maze)",
+                shrubDensity: 70,
+                trees: [
+                    {x: 2, y: 2, w: 16, h: 22}, {x: 18, y: 3, w: 15, h: 20}, {x: 34, y: 2, w: 16, h: 22}, {x: 70, y: 3, w: 14, h: 18}, {x: 85, y: 2, w: 16, h: 22},
+                    {x: 2, y: 70, w: 15, h: 20}, {x: 18, y: 72, w: 13, h: 18}, {x: 68, y: 72, w: 15, h: 20}, {x: 84, y: 70, w: 16, h: 22},
+                    {x: 42, y: 35, w: 16, h: 24} // Center Obstacle Tree
+                ],
+                houses: []
+            }
+        };
+
+        // Render Retro Heart Icons
+        function renderHearts() {
+            const container = document.getElementById('hearts-container');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < 5; i++) {
+                const heart = document.createElement('div');
+                heart.className = "w-3 h-3 flex items-center justify-center transition-all duration-300";
+                
+                if (i < totalLives) {
+                    heart.innerHTML = `
+                        <svg viewBox="0 0 8 8" class="w-full h-full fill-[#0f380f]">
+                            <path d="M 1 2 L 3 2 L 3 3 L 4 3 L 4 2 L 6 2 L 7 3 L 7 5 L 6 6 L 4 8 L 2 6 L 1 5 Z" />
+                        </svg>
+                    `;
+                } else {
+                    heart.innerHTML = `
+                        <svg viewBox="0 0 8 8" class="w-full h-full fill-none stroke-[#306230]" stroke-width="1">
+                            <path d="M 1 2 L 3 2 L 3 3 L 4 3 L 4 2 L 6 2 L 7 3 L 7 5 L 6 6 L 4 8 L 2 6 L 1 5 Z" />
+                        </svg>
+                    `;
+                }
+                container.appendChild(heart);
+            }
+        }
+
+        // Initialize and Start Game
+        function startGame() {
+            initAudio();
+            document.getElementById('splash-screen').classList.add('hidden');
+            
+            // Auto play music when start is clicked
+            isMusicPlaying = true;
+            const musicBtnStatus = document.getElementById('music-status');
+            if (musicBtnStatus) musicBtnStatus.innerText = "ON";
+            stopBGM();
+            playBGM();
+            
+            currentStage = 1;
+            totalLives = 5; 
+            loadStage(currentStage);
+        }
+
+        // Restart entire game (Total Reset)
+        function restartAll() {
+            playSFX('button');
+            document.getElementById('gameover-screen').classList.add('hidden');
+            document.getElementById('victory-screen').classList.add('hidden');
+            document.getElementById('splash-screen').classList.remove('hidden');
+            stopBGM();
+            isMusicPlaying = false;
+            bgmNoteIndex = 0;
+            currentStage = 1;
+            totalLives = 5;
+        }
+
+        // Load specific stage level
+        function loadStage(stageNum) {
+            isStageCleared = false;
+            foundCount = 0;
+            document.getElementById('found-counter').innerText = foundCount;
+            document.getElementById('stage-num').innerText = `0${stageNum}/0${totalStages}`;
+            renderHearts();
+
+            const canvas = document.getElementById('game-canvas');
+            const bg = document.getElementById('game-bg');
+            const decors = document.getElementById('decorations');
+            const objLayer = document.getElementById('objects-layer');
+
+            // Clear previous elements
+            bg.innerHTML = '';
+            decors.innerHTML = '';
+            objLayer.innerHTML = '';
+
+            const theme = stageThemes[stageNum];
+
+            // 1. Render Background grass grid
+            const cols = 12;
+            const rows = 10;
+            bg.className = "absolute inset-0 grid gap-[1px] bg-[#306230]";
+            bg.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            bg.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+            
+            for (let i = 0; i < cols * rows; i++) {
+                const cell = document.createElement('div');
+                if ((Math.floor(i / cols) + i) % 2 === 0) {
+                    cell.className = "bg-[#8bac0f] pixel-shrub opacity-40";
+                } else {
+                    cell.className = "bg-[#9bbc0f] opacity-25";
+                }
+                bg.appendChild(cell);
+            }
+
+            // 2. Render Stage-specific static decorations
+            theme.houses.forEach(house => {
+                const houseEl = document.createElement('div');
+                houseEl.className = "absolute pointer-events-none z-10 flex flex-col items-center justify-center";
+                houseEl.style.left = `${house.x}%`;
+                houseEl.style.top = `${house.y}%`;
+                houseEl.style.width = `${house.w}%`;
+                houseEl.style.height = `${house.h}%`;
+                houseEl.innerHTML = `
+                    <div class="w-full h-full flex flex-col items-center">
+                        <div class="w-full flex-grow-0 h-1/3 bg-[#0f380f] relative" style="clip-path: polygon(50% 0%, 0% 100%, 100% 100%);"></div>
+                        <div class="w-[90%] h-2/3 bg-[#306230] border-2 border-[#0f380f] flex items-end justify-center relative">
+                            <div class="w-4 h-6 bg-[#0f380f] rounded-t-sm"></div>
+                            <div class="absolute top-2 left-2 w-3 h-3 bg-[#8bac0f] border border-[#0f380f]"></div>
+                            <div class="absolute top-2 right-2 w-3 h-3 bg-[#8bac0f] border border-[#0f380f]"></div>
+                        </div>
+                    </div>
+                `;
+                decors.appendChild(houseEl);
+            });
+
+            // Draw Tall Grass & Dense Shrub elements
+            for (let i = 0; i < theme.shrubDensity; i++) {
+                const sx = Math.floor(Math.random() * 92) + 2;
+                const sy = Math.floor(Math.random() * 88) + 4;
+                const size = Math.floor(Math.random() * 12) + 8;
+                
+                const shrub = document.createElement('div');
+                shrub.className = "absolute bg-[#306230] opacity-80 rounded-md pointer-events-none";
+                shrub.style.left = `${sx}%`;
+                shrub.style.top = `${sy}%`;
+                shrub.style.width = `${size}px`;
+                shrub.style.height = `${size}px`;
+                shrub.style.clipPath = "polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)";
+                decors.appendChild(shrub);
+            }
+
+            // Draw Trees
+            theme.trees.forEach(tree => {
+                const treeEl = document.createElement('div');
+                treeEl.className = "absolute pointer-events-none z-10";
+                treeEl.style.left = `${tree.x}%`;
+                treeEl.style.top = `${tree.y}%`;
+                treeEl.style.width = `${tree.w}%`;
+                treeEl.style.height = `${tree.h}%`;
+                treeEl.innerHTML = `
+                    <div class="w-full h-full flex flex-col items-center">
+                        <div class="w-full h-[75%] bg-[#0f380f] rounded-full flex items-center justify-center relative shadow-md">
+                            <div class="w-[80%] h-[80%] bg-[#306230] rounded-full"></div>
+                        </div>
+                        <div class="w-2.5 flex-grow bg-[#0f380f]"></div>
+                    </div>
+                `;
+                decors.appendChild(treeEl);
+            });
+
+            // 3. Generate 5 Hidden Pokémon
+            const shuffledPool = [...pokemonPool].sort(() => Math.random() - 0.5);
+            objects = [];
+
+            for (let i = 0; i < 5; i++) {
+                const poke = shuffledPool[i];
+                let px, py;
+                let overlap = true;
+
+                let attempts = 0;
+                while (overlap && attempts < 100) {
+                    px = Math.floor(Math.random() * 75) + 10;
+                    py = Math.floor(Math.random() * 65) + 15;
+                    overlap = objects.some(obj => {
+                        const dist = Math.hypot(obj.x - px, obj.y - py);
+                        return dist < 18; 
+                    });
+                    attempts++;
+                }
+
+                const size = Math.floor(Math.random() * 6) + 16; 
+                const isRotated = Math.random() > 0.5;
+
+                objects.push({
+                    id: poke.id,
+                    name: poke.name,
+                    svg: poke.svg,
+                    x: px,
+                    y: py,
+                    size: size,
+                    rotated: isRotated,
+                    found: false
+                });
+            }
+
+            // Draw Hidden objects to DOM
+            objects.forEach((obj, idx) => {
+                const wrapper = document.createElement('div');
+                wrapper.id = `obj-${idx}`;
+                wrapper.className = "absolute cursor-pointer transition-all duration-300 z-10 flex items-center justify-center";
+                wrapper.style.left = `${obj.x}%`;
+                wrapper.style.top = `${obj.y}%`;
+                wrapper.style.width = `${obj.size}px`;
+                wrapper.style.height = `${obj.size}px`;
+                
+                wrapper.innerHTML = `
+                    <div class="w-full h-full relative" style="transform: ${obj.rotated ? 'scaleX(-1)' : 'none'};">
+                        ${obj.svg}
+                    </div>
+                `;
+
+                wrapper.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (!obj.found && totalLives > 0 && !isStageCleared) {
+                        selectObject(idx);
+                    }
+                });
+
+                objLayer.appendChild(wrapper);
+            });
+
+            // 4. Attach Stage Wrong-Click Detector
+            canvas.onclick = (e) => {
+                if (e.target === canvas || e.target === bg || e.target === decors || e.target.id === "objects-layer") {
+                    if (totalLives > 0 && !isStageCleared) {
+                        registerWrongClick(e);
+                    }
+                }
+            };
+        }
+
+        // Correct Guess Logic
+        function selectObject(index) {
+            const obj = objects[index];
+            obj.found = true;
+            foundCount++;
+            
+            playSFX('success');
+
+            const wrapper = document.getElementById(`obj-${index}`);
+            wrapper.classList.add('scale-150', 'z-30');
+            wrapper.style.filter = "invert(1) sepia(1) saturate(5) hue-rotate(90deg)";
+            
+            const tip = document.createElement('div');
+            tip.className = "absolute -top-6 bg-[#0f380f] text-[#8bac0f] text-[7px] py-0.5 px-1 rounded border border-[#306230] z-50 whitespace-nowrap animate-bounce font-bold";
+            tip.innerText = `${obj.name}!`;
+            wrapper.appendChild(tip);
+
+            document.getElementById('found-counter').innerText = foundCount;
+
+            if (foundCount === 5) {
+                isStageCleared = true;
+                setTimeout(handleStageClear, 1200);
+            }
+        }
+
+        // Wrong click logic
+        function registerWrongClick(e) {
+            totalLives--;
+            renderHearts();
+            playSFX('fail');
+
+            const screen = document.getElementById('screen');
+            screen.classList.add('bg-red-800');
+            setTimeout(() => {
+                screen.classList.remove('bg-red-800');
+            }, 100);
+
+            const canvas = document.getElementById('game-canvas');
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+
+            const xMarker = document.createElement('div');
+            xMarker.className = "absolute text-xs text-red-900 font-black pointer-events-none z-30 animate-ping";
+            xMarker.style.left = `${clickX - 8}px`;
+            xMarker.style.top = `${clickY - 12}px`;
+            xMarker.innerText = "✖";
+            canvas.appendChild(xMarker);
+            setTimeout(() => xMarker.remove(), 600);
+
+            if (totalLives <= 0) {
+                setTimeout(handleGameOver, 600);
+            }
+        }
+
+        // Stage cleared successfully
+        function handleStageClear() {
+            playSFX('stage-clear');
+
+            if (currentStage < totalStages) {
+                const canvas = document.getElementById('game-canvas');
+                const banner = document.createElement('div');
+                banner.className = "absolute inset-0 bg-[#8bac0f] opacity-95 flex flex-col items-center justify-center text-[#0f380f] z-40 p-4 text-center";
+                banner.innerHTML = `
+                    <p class="text-xs font-bold animate-bounce" style="font-family:'Press Start 2P'">STAGE CLEAR!</p>
+                    <p class="text-[9px] mt-2 font-bold">다음 구역으로 이동합니다...</p>
+                    <p class="text-[8px] text-[#306230] mt-1">(남은 생명 ${totalLives}개 유지됨)</p>
+                `;
+                canvas.appendChild(banner);
+
+                setTimeout(() => {
+                    currentStage++;
+                    loadStage(currentStage);
+                }, 2500);
+            } else {
+                showVictory();
+            }
+        }
+
+        // Game Over Trigger
+        function handleGameOver() {
+            playSFX('gameover');
+            stopBGM();
+            isMusicPlaying = false;
+            
+            document.getElementById('go-stage').innerText = currentStage;
+            document.getElementById('go-found').innerText = foundCount;
+            document.getElementById('gameover-screen').classList.remove('hidden');
+        }
+
+        // Show Victory Screen
+        function showVictory() {
+            stopBGM();
+            isMusicPlaying = false;
+            document.getElementById('victory-screen').classList.remove('hidden');
+        }
+
+        // Trigger Hint using Game Boy Button
+        function triggerHint() {
+            if (totalLives <= 0 || isStageCleared || !objects.length) return;
+            
+            playSFX('hint');
+            
+            const unfound = objects.filter(o => !o.found);
+            if (unfound.length > 0) {
+                const target = unfound[Math.floor(Math.random() * unfound.length)];
+                const index = objects.indexOf(target);
+                const wrapper = document.getElementById(`obj-${index}`);
+                
+                const ping = document.createElement('div');
+                ping.className = "absolute inset-0 rounded-full border-2 border-[#0f380f] animate-ping pointer-events-none";
+                wrapper.appendChild(ping);
+                
+                setTimeout(() => {
+                    ping.remove();
+                }, 2000);
+            }
+        }
+
+        // On Load initialization
+        window.onload = function() {
+            renderHearts();
+        };
+    </script>
+</body>
+</html>
